@@ -86,9 +86,10 @@ const displayUserUI = () => {
   containerApp.style.opacity = 100;
 }
 
-const displayMovements = (movements) => {
+const displayMovements = (movements, sort = false) => {
   containerMovements.innerHTML = '';
-  movements.forEach(function (mov, i) {
+  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+  movs.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
     const html = 
       `<div class="movements__row">
@@ -157,10 +158,25 @@ btnTransfer.addEventListener('click', (e) => {
   }
 })
 
+btnLoan.addEventListener('click', (e) => {
+  e.preventDefault();
+  const amount = Number(inputLoanAmount.value);
+  if(amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)){
+    currentAccount.movements.push(amount);
+    updateUI(currentAccount);
+  }
+  inputLoanAmount.value = '';
+})
+
+let sorted = false;
+btnSort.addEventListener('click', (e) => {
+  e.preventDefault();
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted;
+})
+
 btnClose.addEventListener('click', (e) => {
   e.preventDefault();
-  
-
   if(currentAccount.username === inputCloseUsername.value
     && Number(inputClosePin.value) === currentAccount.pin){
       const index = accounts.findIndex(acc => acc.username === currentAccount.username);
@@ -182,19 +198,3 @@ btnClose.addEventListener('click', (e) => {
 createUsernames(accounts);
 
 
-/////////////////////////////////////////////////
-/////////////////////////////////////////////////
-// LECTURES
-
-// const currencies = new Map([
-//   ['USD', 'United States dollar'],
-//   ['EUR', 'Euro'],
-//   ['GBP', 'Pound sterling'],
-// ]);
-
-// const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
-
-// const maxValue = movements.reduce((acc, mov) => acc > mov ? acc : mov, movements[0]);
-// console.log(maxValue);
-
-/////////////////////////////////////////////////
